@@ -4,8 +4,9 @@
 > arXiv link: [arXiv](https://www.overleaf.com/project/626954666328026cc3d14c98)
 ***
 # Introduction
-We test the openpilot system in some real-world cases and find it can indeed achieve level 2 autonomous driving on a single device.   
-We reimplement the key supercombo model of openpilot from scratch, and test it on public datasets. The reimplemented model is comparable with the original one. !
+
+This repository is the PyTorch implementation for our Openpilot-reimplementation.
+In contrast to most traditional autonomous driving solutions where the perception, prediction, and planning module are apart, [openpilot](https://github.com/commaai/openpilot) uses an end-to-end neural network to predict the trajectory directly from the camera images, which is called supercombo. we reimplement the essential supercombo model from scratch, and test it on public datasets. Experiments prove that both the original openpilot and our reimplemented model can perform well on highway scenarios.
 
 * [Directory Structure](#directory-structure) 
 * [Changelog](#changelog) 
@@ -46,11 +47,19 @@ pip install -r requirements.txt  # install
 ## Dataset
 We train and evaluate our model on two datasets, [nuscenes](https://www.nuscenes.org/nuscenes) and [Comma2k19](https://github.com/commaai/comma2k19).
 The table shows some key features of them.
+![dataset_cmp](https://github.com/caizhitian/openpilot-reimplementation/blob/master/pic/dataset_cmp.png)
 
 ## Training
-By default, the batch size and the learning rate are set to be 48 and 1e-4, respectively. A gradient clip of value 1.0 is applied. During training, you can use 4 or 8 NVIDIA V100 GPUs(Multi-GPU times faster). Since there is a GRU module, you need to initialize its hidden state by filling zeros. When using 8 V100 GPUs, it takes approximate 120 hours to train 100 epochs on Comma2k19 dataset . On a single NVIDIA GTX 1080 GPU, the network can inference at a speed of 100 FPS.
+By default, the batch size and the learning rate are set to be 48 and 1e-4, respectively. A gradient clip of value 1.0 is applied. During training, you can use 4 or 8 NVIDIA V100 GPUs(Multi-GPU times faster). Since there is a GRU module, you need to initialize its hidden state by filling zeros. When using 8 V100 GPUs, it takes approximate 120 hours to train 100 epochs on Comma2k19 dataset . On a single NVIDIA GTX 1080 GPU, the network can inference at a speed of 100 FPS.  
+Configure the above default parameters，and run the following code:
+```
+# using slurm to init
+srun -p $PARTITION$ --job-name=openpilot --mpi=pmi2 -n $NUM_GPUS$ --gres=gpu:$NUM_GPUS$ --ntasks-per-node=$NUM_GPUS$ python main.py --batch_size=$BATCH_SIZE$ --nepochs=$NUM_EPOCHS$
+
+```
 
 ## Demo
+<img src="https://github.com/caizhitian/openpilot-reimplementation/blob/master/pic/demo01.png" width="600px">
 
 ***
 # Citation
